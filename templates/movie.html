@@ -6,20 +6,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/styles/styles.css" />
-    <title>Milestone 2</title>
+    <title>{{items[i]}}</title>
 </head>
 
 <body>
-    <h1>Find a Movie</h1>
-    <form action="/post_search" method="post" class="search-form">
-        <input type="text" class="searchbox" name="searchbox" id="searchbox">
-        <input type="submit" value="submit" class="submit">
-    </form>
     <div class="container">
-        {%for i in range(0, len)%}
         <div class="card">
             <div class="card-img">
-                <a href="/movie">
+                <a href={{wikipage[i]}}>
                     <img src="{{image[i]}}" class="grow" width="300" height="450">
                 </a>
             </div>
@@ -27,7 +21,6 @@
             <p>{{genre[i]}}</p>
             <p>{{tagline[i]}}</p>
         </div>
-        {%endfor%}
     </div>
 </body>
 

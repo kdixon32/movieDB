@@ -1,8 +1,18 @@
+import flask
 from flask import Flask, render_template, request
 import os
 import random
 import requests
 from dotenv import find_dotenv, load_dotenv
+from flask_sqlalchemy import SQLAlchemy
+from models import db, User, Rating
+from flask_login import (
+    LoginManager,
+    login_required,
+    login_user,
+    logout_user,
+    current_user,
+)
 
 load_dotenv(find_dotenv())
 app = Flask(__name__)
@@ -15,23 +25,107 @@ DETAILS_URL = os.getenv("DETAILS_URL")
 EMPTY_POSTER = os.getenv("EMPTY_POSTER")
 WIKISEARCH_BASE = os.getenv("WIKISEARCH_BASE")
 GENREMAP_URL = os.getenv("GENREMAP_URL") + api_key
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db.init_app(app)
+with app.app_context():
+    db.create_all()
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 
-@app.route("/")
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+@app.route("/index")
 def index():
     selection = [
         "Monsters Inc",
         "Shang Chi",
-        # "Teen titans",
-        # "Jumanji",
+        "Teen titans GO",
         "Interstellar",
-        # "Mortal Kombat",
-        # "The Incredibles",
+        "Captain America Civil War",
+        "The Incredibles 2",
         "Spiderman No Way Home",
     ]
     search = random.choice(selection)
-    search = str(search)
 
+    (items, image, genre, tagline, wikipage) = moviesearch(search)
+    return render_template(
+        "index.html",
+        len=len(items),
+        items=items,
+        image=image,
+        genre=genre,
+        tagline=tagline,
+        wikipage=wikipage,
+    )
+
+
+@app.route("/moviepage")
+def moviepage():
+    item = request.args.get("item")
+    image = request.args.get("image")
+    genre = request.args.get("genre")
+    tagline = request.args.get("tagline")
+    wikipage = request.args.get("wikipage")
+    choice = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    comments = Rating.query.filter_by(title=item)
+    ratings = Rating.query.filter_by(title=item)
+    commentlist = []
+    ratinglist = []
+
+    return render_template(
+        "movie.html",
+        item=item,
+        image=image,
+        genre=genre,
+        tagline=tagline,
+        wikipage=wikipage,
+        choice=choice,
+    )
+
+
+@app.route("/", methods=["POST", "GET"])
+def login():
+    if request.method == "POST":
+        entry = request.form.get("username")
+        verifyuser = User.query.filter_by(username=entry).first()
+        login_user(verifyuser)
+        return flask.redirect(flask.url_for("index"))
+    return render_template("login.html")
+
+
+@app.route("/signup", methods=["POST", "GET"])
+def signup():
+    if request.method == "POST":
+        entry = request.form.get("username")
+        newuser = User(username=entry)
+        db.session.add(newuser)
+        db.session.commit()
+        return flask.redirect(flask.url_for("login"))
+    return render_template("signup.html")
+
+
+@app.route("/leave_rating", methods=["POST", "GET"])
+def leave_rating():
+    if request.method == "POST":
+        entry = request.form.get("comment-box")
+        entry2 = request.form.get("rate")
+        entry3 = request.form.get("movietitle")
+        newcomment = Rating(comment=entry, rate=entry2, title=entry3)
+        db.session.add(newcomment)
+        db.session.commit()
+        return flask.redirect(flask.url_for("moviepage"))
+    return render_template("movie.html")
+
+
+def moviesearch(search):
+    search = str(search)
     items = []
     image = []
     genre = []
@@ -67,33 +161,7 @@ def index():
         tagline.append(details_json["tagline"])
         genres = ", ".join(genre["name"] for genre in details_json["genres"])
         genre.append(genres)
-    return render_template(
-        "index.html",
-        len=len(items),
-        items=items,
-        image=image,
-        genre=genre,
-        tagline=tagline,
-        wikipage=wikipage,
-    )
-
-
-@app.route("/moviepage")
-def moviepage():
-    item = request.args.get("item")
-    image = request.args.get("image")
-    genre = request.args.get("genre")
-    tagline = request.args.get("tagline")
-    wikipage = request.args.get("wikipage")
-
-    return render_template(
-        "movie.html",
-        item=item,
-        image=image,
-        genre=genre,
-        tagline=tagline,
-        wikipage=wikipage,
-    )
+        return (items, image, genre, tagline, wikipage)
 
 
 if __name__ == "__main__":

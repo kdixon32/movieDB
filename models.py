@@ -1,13 +1,7 @@
-from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin
 
-app = Flask(__name__)
-
-app.config["SQLALCHEMY_DATABASE_URI"] = ""
-app.config["SECRET_KEY"] = 'this is my "secret" key'
-
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 
 
 class User(db.Model, UserMixin):
@@ -16,4 +10,15 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(50), unique=True, nullable=False)
 
     def __repr__(self):
-        return "<{}:{}>".format(self.id, self.username)
+        return "<User %r>" % self.username
+
+
+class Rating(db.Model):
+    __tablename__ = "movies"
+    id = db.Column(db.Integer(), primary_key=True)
+    title = db.Column(db.String(50), unique=True, nullable=False)
+    comment = db.Column(db.String(50), unique=True, nullable=False)
+    rate = db.Column(db.String(2), unique=True, nullable=False)
+
+    def __repr__(self):
+        return "<Movie %r" % self.rate

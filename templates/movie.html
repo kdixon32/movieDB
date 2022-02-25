@@ -22,6 +22,19 @@
             <p>{{tagline}}</p>
         </div>
     </div>
+    <div class="comment-container">
+        <form action="/leave_rating" method="post">
+            <input type="hidden" name="movietitle" value="{{item}}">
+            <input type="hidden" name="movietitle" value="{{item}}">
+            <textarea rows="5" cols="50" name="comment-box" placeholder="Leave a comment"></textarea>
+            <select name="rate">
+                {% for i in choice %}
+                <option name="rate" value="{{i}}" SELECTED>{{i}}</option>"
+                {% endfor %}
+            </select>
+            <input type="submit" value="submit" />
+        </form>
+    </div>
 </body>
 
 </html>

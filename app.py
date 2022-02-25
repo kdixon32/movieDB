@@ -22,11 +22,11 @@ def index():
     selection = [
         "Monsters Inc",
         "Shang Chi",
-        "Teen titans",
-        "Jumanji",
+        # "Teen titans",
+        # "Jumanji",
         "Interstellar",
-        "Mortal Kombat",
-        "The Incredibles",
+        # "Mortal Kombat",
+        # "The Incredibles",
         "Spiderman No Way Home",
     ]
     search = random.choice(selection)
@@ -44,9 +44,6 @@ def index():
     response_json = response.json()
     movies = response_json
     total = len(movies["results"])
-    genremap = requests.get(GENREMAP_URL)
-    genremap_json = genremap.json()
-
     for movie in range(total):
         items.append(movies["results"][movie].get("title"))
         poster_path = movies["results"][movie].get("poster_path")
@@ -81,9 +78,22 @@ def index():
     )
 
 
-@app.route("/movie_page")
-def movie():
-    search = search
+@app.route("/moviepage")
+def moviepage():
+    item = request.args.get("item")
+    image = request.args.get("image")
+    genre = request.args.get("genre")
+    tagline = request.args.get("tagline")
+    wikipage = request.args.get("wikipage")
+
+    return render_template(
+        "movie.html",
+        item=item,
+        image=image,
+        genre=genre,
+        tagline=tagline,
+        wikipage=wikipage,
+    )
 
 
 if __name__ == "__main__":

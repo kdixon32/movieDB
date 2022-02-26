@@ -20,9 +20,7 @@ h1 {
     background: lightcoral;
     border:black;
     padding: 10px 80px;
-    color: white;
-    
-    
+    color: white;  
 }
 .search-form{
     min-height: 10vh;
@@ -63,4 +61,32 @@ h1 {
     -ms-transform: scale(1.15);
     transform: scale(1.15);
     transition: 1.5s ease;
+}
+
+.movie-comments{
+    display:flex;
+    align-items:center;
+    justify-content: center;
+    width: 300px;
+    height:590px;
+    margin: 30px;
+    background: lightcoral;
+}
+
+.comment-container {
+    display:flex;
+    align-items:center;
+    justify-content: center;
+}
+.submit-comment {
+    background: lightcoral;
+    border:black;
+    padding: 10px 20px;
+    color: white;  
+}
+
+.login-container {
+    justify-content: center;
+    align-items:center;
+    display: flex;
 }

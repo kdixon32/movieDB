@@ -25,21 +25,25 @@
             <div class="comment-bg"></div>
             <div class="comments">
                 {%for i in range(0, len)%}
-                <p>{{userlist[i] commentlist[i] ratinglist[i]}}</p>
+                <p>{{userlist[i]}}: {{commentlist[i]}} <b>{{ratinglist[i]}}</b></p>
+                {% endfor %}
             </div>
         </div>
     </div>
     <div class="comment-container">
         <form action="/leave_rating" method="post">
-            <input type="hidden" name="movietitle" value="{{item}}">
-            <input type="hidden" name="movietitle" value="{{item}}">
-            <textarea rows="5" cols="50" name="comment-box" placeholder="Leave a comment"></textarea>
+            <input type="hidden" name="item" value="{{item}}">
+            <input type="hidden" name="genre" value="{{genre}}">
+            <input type="hidden" name="tagline" value="{{tagline}}">
+            <input type="hidden" name="image" value="{{image}}">
+            <input type="hidden" name="wikipage" value="{{wikipage}}">
+            <textarea rows="5" cols="50" name="comment-box" placeholder="Leave a comment and rating"></textarea>
             <select name="rate">
                 {% for i in choice %}
                 <option name="rate" value="{{i}}" SELECTED>{{i}}</option>"
                 {% endfor %}
             </select>
-            <input type="submit" value="submit" />
+            <input type="submit" value="submit" class="submit-comment" />
         </form>
     </div>
 </body>

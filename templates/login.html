@@ -10,13 +10,15 @@
 </head>
 
 <body>
-    <div class="container">
-        <h2>Log in to your account</h2>
-        <form action="/" method="post" class="login-form">
-            <input type="text" name="username" placeholder="username" />
-            <button type="submit" class="button">Log in</button>
-        </form>
-        <a href="{{ url_for('signup') }}">Or Sign Up Here</a>
+    <div class="login-container">
+        <h2>Log in to your account </h2>
+        <div>
+            <form action="/" method="post" class="login-form">
+                <input type="text" name="username" placeholder="username" />
+                <button type="submit" class="button">Log in</button>
+                <a href="{{ url_for('signup') }}">Or Sign Up Here</a>
+            </form>
+        </div>
     </div>
     {% with messages = get_flashed_messages() %}
     {% if messages %}

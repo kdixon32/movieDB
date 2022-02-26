@@ -16,9 +16,10 @@ class User(db.Model, UserMixin):
 class Rating(db.Model):
     __tablename__ = "movies"
     id = db.Column(db.Integer(), primary_key=True)
-    title = db.Column(db.String(50), unique=True, nullable=False)
-    comment = db.Column(db.String(50), unique=True, nullable=False)
-    rate = db.Column(db.String(2), unique=True, nullable=False)
+    sender = db.Column(db.String(50), nullable=False)
+    title = db.Column(db.String(50), nullable=False)
+    comment = db.Column(db.String(50), nullable=False)
+    rate = db.Column(db.String(2), nullable=False)
 
     def __repr__(self):
         return "<Movie %r" % self.rate

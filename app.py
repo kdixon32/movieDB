@@ -10,7 +10,6 @@ from flask_login import (
     LoginManager,
     login_required,
     login_user,
-    logout_user,
     current_user,
 )
 
@@ -43,14 +42,14 @@ def load_user(user_id):
 
 @app.route("/index")
 def index():
-    selection = [
+    selection = [  # this list holds possible queries when refreshing the page
         "Monsters Inc",
         "Shang Chi",
         "Teen titans GO",
         "Interstellar",
         "Captain America Civil War",
         "The Incredibles 2",
-        "Spiderman No Way Home",
+        "Spiderman 2",
     ]
     search = random.choice(selection)
     (items, image, genre, tagline, wikipage) = moviesearch(search)
@@ -66,7 +65,7 @@ def index():
 
 
 @app.route("/moviepage")
-def moviepage():
+def moviepage():  # This function controls the individual movie pages containing the comments and ratings
     item = request.args.get("item")
     image = request.args.get("image")
     genre = request.args.get("genre")
@@ -77,7 +76,6 @@ def moviepage():
     commentlist = []
     ratinglist = []
     userlist = []
-    allratings = []
     for i in thismovie:
         commentlist.append(i.comment)
         ratinglist.append(i.rate)
@@ -93,8 +91,7 @@ def moviepage():
         commentlist=commentlist,
         ratinglist=ratinglist,
         userlist=userlist,
-        len=len(thismovie),
-        currentuser=current_user.username,
+        len=len(commentlist),
     )
 
 
@@ -102,7 +99,7 @@ def moviepage():
 def login():
     if request.method == "POST":
         entry = request.form.get("username")
-        try:
+        try:  # this try/except keeps users on the login page until they have successfully logged in
             verifyuser = User.query.filter_by(username=entry).first()
             login_user(verifyuser)
         except:
@@ -118,28 +115,35 @@ def signup():
         entry = request.form.get("username")
         newuser = User(username=entry)
         db.session.add(newuser)
-        db.session.commit()
+        db.session.commit()  # a new user's username is saved to the database
         return flask.redirect(flask.url_for("login"))
     return render_template("signup.html")
 
 
 @app.route("/leave_rating", methods=["POST", "GET"])
 @login_required
-def leave_rating():
+def leave_rating():  # this method allows users to leave ratings on movies
     if request.method == "POST":
+        # item = request.form.get("item")
+        # image = request.form.get("image")
+        # genre = request.form.get("genre")
+        # tagline = request.form.get("tagline")
+        # wikipage = request.form.get("wikipage")
         entry = request.form.get("comment-box")
         entry2 = request.form.get("rate")
-        entry3 = request.form.get("movietitle")
+        entry3 = request.form.get("item")
         newcomment = Rating(
-            comment=entry, rate=entry2, title=entry3, sender=current_user.id
+            comment=entry, rate=entry2, title=entry3, sender=current_user.username
         )
         db.session.add(newcomment)
-        db.session.commit()
+        db.session.commit()  # a new comment contained the users name, their thoughts, and a rating is created
         return flask.redirect(flask.url_for("moviepage"))
 
 
 def moviesearch(search):
-    search = str(search)
+    search = str(
+        search
+    )  # These lists are needed to produce the list of movies on the main page
     items = []
     image = []
     genre = []
@@ -147,12 +151,16 @@ def moviesearch(search):
     wikipage = []
     forbidden_chars = "'[]"
 
-    query_url = SEARCH_URL + search
+    query_url = (
+        SEARCH_URL + search
+    )  # this project originally had a search bar. It may be making a return later.
     response = requests.get(query_url)
     response_json = response.json()
     movies = response_json
     total = len(movies["results"])
-    for movie in range(total):
+    for movie in range(
+        total
+    ):  # This for loop populates the lists with movie information
         items.append(movies["results"][movie].get("title"))
         poster_path = movies["results"][movie].get("poster_path")
         if poster_path == None:

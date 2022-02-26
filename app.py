@@ -24,7 +24,7 @@ DETAILS_URL = os.getenv("DETAILS_URL")
 EMPTY_POSTER = os.getenv("EMPTY_POSTER")
 WIKISEARCH_BASE = os.getenv("WIKISEARCH_BASE")
 GENREMAP_URL = os.getenv("GENREMAP_URL") + api_key
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("postgresurl")
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)

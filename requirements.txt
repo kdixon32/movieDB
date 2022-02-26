@@ -2,6 +2,5 @@ Flask
 requests
 python-dotenv
 psycopg2-binary
-postgresql
 Flask-sqlalchemy
 flask_login

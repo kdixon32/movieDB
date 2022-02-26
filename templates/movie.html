@@ -21,6 +21,13 @@
             <p>{{genre}}</p>
             <p>{{tagline}}</p>
         </div>
+        <div class="movie-comments">
+            <div class="comment-bg"></div>
+            <div class="comments">
+                {%for i in range(0, len)%}
+                <p>{{userlist[i] commentlist[i] ratinglist[i]}}</p>
+            </div>
+        </div>
     </div>
     <div class="comment-container">
         <form action="/leave_rating" method="post">

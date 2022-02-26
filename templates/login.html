@@ -16,8 +16,15 @@
             <input type="text" name="username" placeholder="username" />
             <button type="submit" class="button">Log in</button>
         </form>
+        <a href="{{ url_for('signup') }}">Or Sign Up Here</a>
     </div>
-    <a href="{{ url_for('signup') }}">Or Sign Up Here</a>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <b>{{ message }} </b>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
 </body>
 
 </html>

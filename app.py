@@ -53,7 +53,6 @@ def index():
         "Spiderman No Way Home",
     ]
     search = random.choice(selection)
-
     (items, image, genre, tagline, wikipage) = moviesearch(search)
     return render_template(
         "index.html",
@@ -74,11 +73,15 @@ def moviepage():
     tagline = request.args.get("tagline")
     wikipage = request.args.get("wikipage")
     choice = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    comments = Rating.query.filter_by(title=item)
-    ratings = Rating.query.filter_by(title=item)
+    thismovie = Rating.query.filter_by(title=item)
     commentlist = []
     ratinglist = []
-
+    userlist = []
+    allratings = []
+    for i in thismovie:
+        commentlist.append(i.comment)
+        ratinglist.append(i.rate)
+        userlist.append(i.sender)
     return render_template(
         "movie.html",
         item=item,
@@ -87,6 +90,11 @@ def moviepage():
         tagline=tagline,
         wikipage=wikipage,
         choice=choice,
+        commentlist=commentlist,
+        ratinglist=ratinglist,
+        userlist=userlist,
+        len=len(thismovie),
+        currentuser=current_user.username,
     )
 
 
@@ -94,8 +102,12 @@ def moviepage():
 def login():
     if request.method == "POST":
         entry = request.form.get("username")
-        verifyuser = User.query.filter_by(username=entry).first()
-        login_user(verifyuser)
+        try:
+            verifyuser = User.query.filter_by(username=entry).first()
+            login_user(verifyuser)
+        except:
+            flask.flash("Incorrect Username Entered")
+            return render_template("login.html")
         return flask.redirect(flask.url_for("index"))
     return render_template("login.html")
 
@@ -112,16 +124,18 @@ def signup():
 
 
 @app.route("/leave_rating", methods=["POST", "GET"])
+@login_required
 def leave_rating():
     if request.method == "POST":
         entry = request.form.get("comment-box")
         entry2 = request.form.get("rate")
         entry3 = request.form.get("movietitle")
-        newcomment = Rating(comment=entry, rate=entry2, title=entry3)
+        newcomment = Rating(
+            comment=entry, rate=entry2, title=entry3, sender=current_user.id
+        )
         db.session.add(newcomment)
         db.session.commit()
         return flask.redirect(flask.url_for("moviepage"))
-    return render_template("movie.html")
 
 
 def moviesearch(search):
@@ -161,7 +175,7 @@ def moviesearch(search):
         tagline.append(details_json["tagline"])
         genres = ", ".join(genre["name"] for genre in details_json["genres"])
         genre.append(genres)
-        return (items, image, genre, tagline, wikipage)
+    return (items, image, genre, tagline, wikipage)
 
 
 if __name__ == "__main__":

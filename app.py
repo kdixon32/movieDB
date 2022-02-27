@@ -39,9 +39,9 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-@app.route("/index")
+@app.route("/index", methods=["POST", "GET"])
 def index():
-    selection = [  # this list holds possible queries when refreshing the page
+    selection = [  # this list holds possible queries when refreshing the index page
         "Monsters Inc",
         "Shang Chi",
         "Teen titans GO",
@@ -51,6 +51,8 @@ def index():
         "Spiderman 2",
     ]
     search = random.choice(selection)
+    if request.method == "POST":
+        search = request.form["searchbox"]
     (items, image, genre, tagline, wikipage) = moviesearch(search)
     return render_template(
         "index.html",
@@ -63,7 +65,8 @@ def index():
     )
 
 
-@app.route("/moviepage")
+@login_required
+@app.route("/moviepage", methods=["POST", "GET"])
 def moviepage():  # This function controls the individual movie pages containing the comments and ratings
     item = request.args.get("item")
     image = request.args.get("image")
@@ -71,6 +74,21 @@ def moviepage():  # This function controls the individual movie pages containing
     tagline = request.args.get("tagline")
     wikipage = request.args.get("wikipage")
     choice = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    if request.method == "POST":  # This is where new comments are added to the database
+        entry = request.form.get("comment-box")
+        entry2 = request.form.get("rate")
+        entry3 = request.form.get("item")
+        item = request.form.get("item")
+        image = request.form.get("image")
+        genre = request.form.get("genre")
+        tagline = request.form.get("tagline")
+        wikipage = request.form.get("wikipage")
+        newcomment = Rating(
+            comment=entry, rate=entry2, title=entry3, sender=current_user.username
+        )
+        db.session.add(newcomment)
+        db.session.commit()  # a new comment contained the users name, their thoughts, and a rating is created
+
     thismovie = Rating.query.filter_by(title=item)
     commentlist = []
     ratinglist = []
@@ -111,32 +129,19 @@ def login():
 @app.route("/signup", methods=["POST", "GET"])
 def signup():
     if request.method == "POST":
-        entry = request.form.get("username")
-        newuser = User(username=entry)
-        db.session.add(newuser)
-        db.session.commit()  # a new user's username is saved to the database
+        if (
+            db.session.query(User.id)
+            .filter_by(username=request.form.get("username"))
+            .scalar()
+            is None
+        ):
+            entry = request.form.get("username")
+            newuser = User(username=entry)
+            db.session.add(newuser)
+            db.session.commit()  # a new user's username is saved to the database
+            return flask.redirect(flask.url_for("login"))
         return flask.redirect(flask.url_for("login"))
     return render_template("signup.html")
-
-
-@app.route("/leave_rating", methods=["POST", "GET"])
-@login_required
-def leave_rating():  # this method allows users to leave ratings on movies
-    if request.method == "POST":
-        # item = request.form.get("item")
-        # image = request.form.get("image")
-        # genre = request.form.get("genre")
-        # tagline = request.form.get("tagline")
-        # wikipage = request.form.get("wikipage")
-        entry = request.form.get("comment-box")
-        entry2 = request.form.get("rate")
-        entry3 = request.form.get("item")
-        newcomment = Rating(
-            comment=entry, rate=entry2, title=entry3, sender=current_user.username
-        )
-        db.session.add(newcomment)
-        db.session.commit()  # a new comment contained the users name, their thoughts, and a rating is created
-        return flask.redirect(flask.url_for("moviepage"))
 
 
 def moviesearch(search):

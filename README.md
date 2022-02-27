@@ -1,5 +1,7 @@
 **To access the comments from the start page, click the poster of a movie. To access the wikipedia links, click the poster of the movie on its individual page**
 
+https://infinite-reaches-09023.herokuapp.com/
+
 If cloning this repository, you'll need following libraries to run the project locally:
 Flask,
 requests,
